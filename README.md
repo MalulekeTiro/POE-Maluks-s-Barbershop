@@ -1,269 +1,273 @@
-public class HospitalException extends Exception {
-    public HospitalException(String message) {
-        super(message);
-    }
-}
+import java.util.Scanner;
 
+public class Main {
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final HospitalSystem hospital = new HospitalSystem();
 
-hospital system
+    public static void main(String[] args) {
+        boolean running = true;
 
+        while (running) {
+            displayMenu();
 
-import java.util.ArrayList;
-import java.util.Comparator;
+            try {
+                int choice = Integer.parseInt(scanner.nextLine());
 
-public class HospitalSystem {
-    private final ArrayList<Patient> patients;
-    private final Patient[][] beds;
+                switch (choice) {
+                    case 1:
+                        registerPatient();
+                        break;
+                    case 2:
+                        searchPatient();
+                        break;
+                    case 3:
+                        updatePatient();
+                        break;
+                    case 4:
+                        deletePatient();
+                        break;
+                    case 5:
+                        hospital.displayAllPatients();
+                        break;
+                    case 6:
+                        allocateBed();
+                        break;
+                    case 7:
+                        releaseBed();
+                        break;
+                    case 8:
+                        hospital.displayWardLayout();
+                        break;
+                    case 9:
+                        hospital.displayAvailableBeds();
+                        break;
+                    case 10:
+                        hospital.displayOccupiedBeds();
+                        break;
+                    case 11:
+                        displayReports();
+                        break;
+                    case 12:
+                        hospital.sortPatientsById();
+                        System.out.println("Patients sorted by Patient ID.");
+                        break;
+                    case 0:
+                        running = false;
+                        System.out.println("Thank you for using the Hospital Patient Admission System.");
+                        break;
+                    default:
+                        System.out.println("Invalid option.");
+                }
 
-    public HospitalSystem() {
-        patients = new ArrayList<>();
-        beds = new Patient[4][5];
-    }
-
-    public void registerPatient(Patient patient) throws HospitalException {
-        if (findPatient(patient.getPatientId()) != null) {
-            throw new HospitalException("Patient ID already exists.");
-        }
-
-        if (patient.getAge() < 0 || patient.getAge() > 120) {
-            throw new HospitalException("Invalid patient age.");
-        }
-
-        patients.add(patient);
-    }
-
-    public Patient findPatient(String patientId) {
-        for (Patient patient : patients) {
-            if (patient.getPatientId().equalsIgnoreCase(patientId)) {
-                return patient;
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+            } catch (HospitalException e) {
+                System.out.println("Error: " + e.getMessage());
             }
+
+            System.out.println();
         }
-        return null;
     }
 
-    public void updatePatient(String patientId, String firstName, String lastName,
-                              int age, String gender, String condition)
-            throws HospitalException {
+    private static void displayMenu() {
+        System.out.println("======================================");
+        System.out.println(" MEDICARE HOSPITAL PATIENT SYSTEM");
+        System.out.println("======================================");
+        System.out.println("1. Register Patient");
+        System.out.println("2. Search Patient");
+        System.out.println("3. Update Patient");
+        System.out.println("4. Delete Patient");
+        System.out.println("5. Display All Patients");
+        System.out.println("6. Allocate Bed");
+        System.out.println("7. Release Bed");
+        System.out.println("8. Display Ward Layout");
+        System.out.println("9. Display Available Beds");
+        System.out.println("10. Display Occupied Beds");
+        System.out.println("11. Generate Reports");
+        System.out.println("12. Sort Patients by Patient ID");
+        System.out.println("0. Exit");
+        System.out.print("Enter option: ");
+    }
 
-        Patient patient = findPatient(patientId);
+    private static void registerPatient() throws HospitalException {
+        System.out.println();
+        System.out.println("REGISTER PATIENT");
+
+        System.out.print("Patient ID: ");
+        String id = scanner.nextLine();
+
+        System.out.print("First Name: ");
+        String firstName = scanner.nextLine();
+
+        System.out.print("Last Name: ");
+        String lastName = scanner.nextLine();
+
+        System.out.print("Age: ");
+        int age = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("Gender: ");
+        String gender = scanner.nextLine();
+
+        System.out.print("Medical Condition: ");
+        String condition = scanner.nextLine();
+
+        System.out.println("1. Inpatient");
+        System.out.println("2. Outpatient");
+        System.out.println("3. Emergency");
+        System.out.print("Select category: ");
+
+        int categoryChoice = Integer.parseInt(scanner.nextLine());
+
+        Patient patient;
+
+        switch (categoryChoice) {
+            case 1:
+                patient = new Inpatient(
+                        id,
+                        firstName,
+                        lastName,
+                        age,
+                        gender,
+                        condition,
+                        1,
+                        "Not Allocated"
+                );
+                break;
+
+            case 2:
+                patient = new Patient(
+                        id,
+                        firstName,
+                        lastName,
+                        age,
+                        gender,
+                        condition,
+                        PatientCategory.OUTPATIENT
+                );
+                break;
+
+            case 3:
+                patient = new Patient(
+                        id,
+                        firstName,
+                        lastName,
+                        age,
+                        gender,
+                        condition,
+                        PatientCategory.EMERGENCY
+                );
+                break;
+
+            default:
+                throw new HospitalException("Invalid patient category.");
+        }
+
+        hospital.registerPatient(patient);
+
+        System.out.println("Patient registered successfully.");
+    }
+
+    private static void searchPatient() throws HospitalException {
+        System.out.print("Enter Patient ID: ");
+        String id = scanner.nextLine();
+
+        Patient patient = hospital.findPatient(id);
 
         if (patient == null) {
             throw new HospitalException("Patient not found.");
         }
 
-        if (age < 0 || age > 120) {
-            throw new HospitalException("Invalid patient age.");
-        }
-
-        patient.setFirstName(firstName);
-        patient.setLastName(lastName);
-        patient.setAge(age);
-        patient.setGender(gender);
-        patient.setMedicalCondition(condition);
+        System.out.println();
+        patient.displayDetails();
     }
 
-    public void deletePatient(String patientId) throws HospitalException {
-        Patient patient = findPatient(patientId);
+    private static void updatePatient() throws HospitalException {
+        System.out.print("Enter Patient ID: ");
+        String id = scanner.nextLine();
+
+        Patient patient = hospital.findPatient(id);
 
         if (patient == null) {
             throw new HospitalException("Patient not found.");
         }
 
-        if (patient instanceof Inpatient) {
-            Inpatient inpatient = (Inpatient) patient;
+        System.out.print("First Name: ");
+        String firstName = scanner.nextLine();
 
-            if (!inpatient.getBedNumber().equals("Not Allocated")) {
-                releaseBed(inpatient.getBedNumber());
-            }
-        }
+        System.out.print("Last Name: ");
+        String lastName = scanner.nextLine();
 
-        patients.remove(patient);
-    }
+        System.out.print("Age: ");
+        int age = Integer.parseInt(scanner.nextLine());
 
-    public void displayAllPatients() {
-        ArrayList<Patient> sortedPatients = new ArrayList<>(patients);
+        System.out.print("Gender: ");
+        String gender = scanner.nextLine();
 
-        sortedPatients.sort(
-                Comparator.comparing(Patient::getLastName)
-                        .thenComparing(Patient::getFirstName)
+        System.out.print("Medical Condition: ");
+        String condition = scanner.nextLine();
+
+        hospital.updatePatient(
+                id,
+                firstName,
+                lastName,
+                age,
+                gender,
+                condition
         );
 
-        if (sortedPatients.isEmpty()) {
-            System.out.println("No registered patients.");
-            return;
-        }
-
-        for (Patient patient : sortedPatients) {
-            System.out.println("------------------------------");
-            patient.displayDetails();
-        }
+        System.out.println("Patient updated successfully.");
     }
 
-    public void sortPatientsById() {
-        patients.sort(Comparator.comparing(Patient::getPatientId));
+    private static void deletePatient() throws HospitalException {
+        System.out.print("Enter Patient ID: ");
+        String id = scanner.nextLine();
+
+        hospital.deletePatient(id);
+
+        System.out.println("Patient deleted successfully.");
     }
 
-    public void allocateBed(String patientId) throws HospitalException {
-        Patient patient = findPatient(patientId);
+    private static void allocateBed() throws HospitalException {
+        System.out.print("Enter Inpatient ID: ");
+        String id = scanner.nextLine();
 
-        if (patient == null) {
-            throw new HospitalException("Patient not found.");
-        }
-
-        if (!(patient instanceof Inpatient)) {
-            throw new HospitalException("Only inpatients may be allocated a bed.");
-        }
-
-        Inpatient inpatient = (Inpatient) patient;
-
-        if (!inpatient.getBedNumber().equals("Not Allocated")) {
-            throw new HospitalException("Patient already has a bed.");
-        }
-
-        for (int row = 0; row < beds.length; row++) {
-            for (int column = 0; column < beds[row].length; column++) {
-                if (beds[row][column] == null) {
-                    String bedNumber = getBedNumber(row, column);
-
-                    beds[row][column] = inpatient;
-                    inpatient.setWardNumber(1);
-                    inpatient.setBedNumber(bedNumber);
-
-                    System.out.println("Bed " + bedNumber + " allocated successfully.");
-                    return;
-                }
-            }
-        }
-
-        throw new HospitalException("No beds are available.");
+        hospital.allocateBed(id);
     }
 
-    public void releaseBed(String bedNumber) throws HospitalException {
-        for (int row = 0; row < beds.length; row++) {
-            for (int column = 0; column < beds[row].length; column++) {
-                if (getBedNumber(row, column).equalsIgnoreCase(bedNumber)) {
+    private static void releaseBed() throws HospitalException {
+        System.out.print("Enter Bed Number: ");
+        String bedNumber = scanner.nextLine();
 
-                    if (beds[row][column] == null) {
-                        throw new HospitalException("Bed is already available.");
-                    }
-
-                    Patient patient = beds[row][column];
-
-                    if (patient instanceof Inpatient) {
-                        Inpatient inpatient = (Inpatient) patient;
-                        inpatient.setBedNumber("Not Allocated");
-                        inpatient.setWardNumber(1);
-                    }
-
-                    beds[row][column] = null;
-
-                    System.out.println("Bed " + bedNumber + " released successfully.");
-                    return;
-                }
-            }
-        }
-
-        throw new HospitalException("Invalid bed number.");
+        hospital.releaseBed(bedNumber);
     }
 
-    private String getBedNumber(int row, int column) {
-        int number = row * 5 + column + 1;
-        return String.format("B%02d", number);
-    }
-
-    public void displayWardLayout() {
+    private static void displayReports() {
         System.out.println();
-        System.out.println("WARD 1 - BED LAYOUT");
-        System.out.println("------------------------------");
+        System.out.println("======================================");
+        System.out.println("           WARD REPORT");
+        System.out.println("======================================");
 
-        for (int row = 0; row < beds.length; row++) {
-            for (int column = 0; column < beds[row].length; column++) {
-                String bedNumber = getBedNumber(row, column);
+        System.out.println("Total Registered Patients: "
+                + hospital.getTotalPatients());
 
-                if (beds[row][column] == null) {
-                    System.out.printf("%-8s", bedNumber);
-                } else {
-                    System.out.printf("%-8s", bedNumber + "*");
-                }
-            }
+        System.out.println("Total Occupied Beds: "
+                + hospital.getOccupiedBeds());
 
-            System.out.println();
-        }
+        System.out.println("Total Available Beds: "
+                + hospital.getAvailableBeds());
 
-        System.out.println("* = Occupied");
-    }
+        System.out.printf(
+                "Ward Occupancy: %.2f%%%n",
+                hospital.getOccupancyPercentage()
+        );
 
-    public void displayAvailableBeds() {
-        System.out.println("AVAILABLE BEDS:");
+        System.out.println();
+        hospital.displayAvailableBeds();
 
-        boolean found = false;
+        System.out.println();
+        hospital.displayOccupiedBeds();
 
-        for (int row = 0; row < beds.length; row++) {
-            for (int column = 0; column < beds[row].length; column++) {
-                if (beds[row][column] == null) {
-                    System.out.print(getBedNumber(row, column) + " ");
-                    found = true;
-                }
-            }
-        }
-
-        if (!found) {
-            System.out.println("No beds available.");
-        } else {
-            System.out.println();
-        }
-    }
-
-    public void displayOccupiedBeds() {
-        System.out.println("OCCUPIED BEDS:");
-
-        boolean found = false;
-
-        for (int row = 0; row < beds.length; row++) {
-            for (int column = 0; column < beds[row].length; column++) {
-                if (beds[row][column] != null) {
-                    Patient patient = beds[row][column];
-
-                    System.out.println(
-                            getBedNumber(row, column) + " - " +
-                            patient.getPatientId() + " - " +
-                            patient.getFirstName() + " " +
-                            patient.getLastName()
-                    );
-
-                    found = true;
-                }
-            }
-        }
-
-        if (!found) {
-            System.out.println("No occupied beds.");
-        }
-    }
-
-    public int getTotalPatients() {
-        return patients.size();
-    }
-
-    public int getOccupiedBeds() {
-        int count = 0;
-
-        for (int row = 0; row < beds.length; row++) {
-            for (int column = 0; column < beds[row].length; column++) {
-                if (beds[row][column] != null) {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
-
-    public int getAvailableBeds() {
-        return 20 - getOccupiedBeds();
-    }
-
-    public double getOccupancyPercentage() {
-        return (getOccupiedBeds() / 20.0) * 100;
+        System.out.println();
+        hospital.displayAllPatients();
     }
 }
