@@ -1,15 +1,15 @@
 package com.mycompany.chat_app;
 
 /**
- * Rescue case for an orphaned animal.
+ * Rescue case for an endangered species.
  */
-public class OrphanedAnimalRescue extends RescueCase {
+public class EndangeredSpeciesRescue extends RescueCase {
 
-    private final int estimatedAgeMonths;
-    private final double feedingCost;
-    private final boolean fosterCareRequired;
+    private final String conservationClassification;
+    private final double securityCost;
+    private final boolean specialistTeamRequired;
 
-    public OrphanedAnimalRescue(
+    public EndangeredSpeciesRescue(
             String rescueCaseId,
             String animalName,
             String species,
@@ -17,9 +17,9 @@ public class OrphanedAnimalRescue extends RescueCase {
             String assignedRanger,
             int numberOfRescueDays,
             double dailyCareCost,
-            int estimatedAgeMonths,
-            double feedingCost,
-            boolean fosterCareRequired) {
+            String conservationClassification,
+            double securityCost,
+            boolean specialistTeamRequired) {
 
         super(
                 rescueCaseId,
@@ -31,36 +31,36 @@ public class OrphanedAnimalRescue extends RescueCase {
                 dailyCareCost
         );
 
-        this.estimatedAgeMonths = estimatedAgeMonths;
-        this.feedingCost = feedingCost;
-        this.fosterCareRequired = fosterCareRequired;
+        this.conservationClassification = conservationClassification;
+        this.securityCost = securityCost;
+        this.specialistTeamRequired = specialistTeamRequired;
     }
 
-    public int getEstimatedAgeMonths() {
-        return estimatedAgeMonths;
+    public String getConservationClassification() {
+        return conservationClassification;
     }
 
-    public double getFeedingCost() {
-        return feedingCost;
+    public double getSecurityCost() {
+        return securityCost;
     }
 
-    public boolean isFosterCareRequired() {
-        return fosterCareRequired;
+    public boolean isSpecialistTeamRequired() {
+        return specialistTeamRequired;
     }
 
     @Override
     public String getRescueType() {
-        return "Orphaned Animal Rescue";
+        return "Endangered Species Rescue";
     }
 
     @Override
     public double calculateTotalRescueCost() {
 
         double total = calculateBaseCareCost()
-                + feedingCost;
+                + securityCost;
 
-        if (fosterCareRequired) {
-            total += 2500.00;
+        if (specialistTeamRequired) {
+            total += 8000.00;
         }
 
         return total;
@@ -69,28 +69,30 @@ public class OrphanedAnimalRescue extends RescueCase {
     @Override
     public String determineRescuePriority() {
 
-        if (estimatedAgeMonths <= 3 || fosterCareRequired) {
+        if (specialistTeamRequired
+                || conservationClassification.equalsIgnoreCase("Critically Endangered")) {
+
+            return "Critical";
+        }
+
+        if (conservationClassification.equalsIgnoreCase("Endangered")) {
             return "High";
         }
 
-        if (estimatedAgeMonths <= 12) {
-            return "Medium";
-        }
-
-        return "Low";
+        return "Medium";
     }
 
     @Override
     protected String getTypeSpecificInformation() {
 
         return String.format(
-                "Estimated Age     : %d months%n"
-                + "Feeding Cost      : R%,.2f%n"
-                + "Foster Care       : %s",
+                "Classification    : %s%n"
+                + "Security Cost      : R%,.2f%n"
+                + "Specialist Team    : %s",
 
-                estimatedAgeMonths,
-                feedingCost,
-                fosterCareRequired ? "Yes" : "No"
+                conservationClassification,
+                securityCost,
+                specialistTeamRequired ? "Yes" : "No"
         );
     }
 }
