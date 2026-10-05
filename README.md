@@ -1,149 +1,96 @@
 package com.mycompany.chat_app;
 
 /**
- * Abstract base class containing information common to all rescue cases.
+ * Rescue case for an injured animal.
  */
-public abstract class RescueCase implements RescueOperations {
+public class InjuredAnimalRescue extends RescueCase {
 
-    private final String rescueCaseId;
-    private final String animalName;
-    private final String species;
-    private final String rescueLocation;
-    private final String assignedRanger;
-    private final int numberOfRescueDays;
-    private final double dailyCareCost;
-    private String currentRescueStatus;
+    private final String injuryDescription;
+    private final double veterinaryTreatmentCost;
+    private final boolean surgeryRequired;
 
-    protected RescueCase(
+    public InjuredAnimalRescue(
             String rescueCaseId,
             String animalName,
             String species,
             String rescueLocation,
             String assignedRanger,
             int numberOfRescueDays,
-            double dailyCareCost) {
+            double dailyCareCost,
+            String injuryDescription,
+            double veterinaryTreatmentCost,
+            boolean surgeryRequired) {
 
-        this.rescueCaseId = rescueCaseId;
-        this.animalName = animalName;
-        this.species = species;
-        this.rescueLocation = rescueLocation;
-        this.assignedRanger = assignedRanger;
-        this.numberOfRescueDays = numberOfRescueDays;
-        this.dailyCareCost = dailyCareCost;
-
-        this.currentRescueStatus = "Registered";
-    }
-
-    public String getRescueCaseId() {
-        return rescueCaseId;
-    }
-
-    public String getAnimalName() {
-        return animalName;
-    }
-
-    public String getSpecies() {
-        return species;
-    }
-
-    public String getRescueLocation() {
-        return rescueLocation;
-    }
-
-    public String getAssignedRanger() {
-        return assignedRanger;
-    }
-
-    public int getNumberOfRescueDays() {
-        return numberOfRescueDays;
-    }
-
-    public double getDailyCareCost() {
-        return dailyCareCost;
-    }
-
-    public String getCurrentRescueStatus() {
-        return currentRescueStatus;
-    }
-
-    protected void setCurrentRescueStatus(String status) {
-        this.currentRescueStatus = status;
-    }
-
-    /**
-     * Calculates the common daily-care portion of the rescue cost.
-     */
-    protected double calculateBaseCareCost() {
-        return numberOfRescueDays * dailyCareCost;
-    }
-
-    public abstract String getRescueType();
-
-    public abstract double calculateTotalRescueCost();
-
-    public abstract String determineRescuePriority();
-
-    /**
-     * Returns information specific to each rescue type.
-     */
-    protected abstract String getTypeSpecificInformation();
-
-    @Override
-    public void startRescue() {
-        setCurrentRescueStatus("Rescue In Progress");
-    }
-
-    @Override
-    public void completeRescue() {
-        setCurrentRescueStatus("Rescue Completed");
-    }
-
-    @Override
-    public String generateRescueSummary() {
-
-        return String.format(
-                "Case ID: %s%n"
-                + "Rescue Type: %s%n"
-                + "Species: %s%n"
-                + "Assigned Ranger: %s%n"
-                + "Rescue Priority: %s%n"
-                + "Current Status: %s%n"
-                + "Total Rescue Cost: R%,.2f",
-
-                rescueCaseId,
-                getRescueType(),
-                species,
-                assignedRanger,
-                determineRescuePriority(),
-                currentRescueStatus,
-                calculateTotalRescueCost()
-        );
-    }
-
-    public String getFullReportEntry() {
-
-        return String.format(
-                "Case ID       : %s%n"
-                + "Animal Name   : %s%n"
-                + "Type          : %s%n"
-                + "Species       : %s%n"
-                + "Location      : %s%n"
-                + "Ranger        : %s%n"
-                + "Priority      : %s%n"
-                + "Status        : %s%n"
-                + "Total Cost    : R%,.2f%n"
-                + "%s",
-
+        super(
                 rescueCaseId,
                 animalName,
-                getRescueType(),
                 species,
                 rescueLocation,
                 assignedRanger,
-                determineRescuePriority(),
-                currentRescueStatus,
-                calculateTotalRescueCost(),
-                getTypeSpecificInformation()
+                numberOfRescueDays,
+                dailyCareCost
+        );
+
+        this.injuryDescription = injuryDescription;
+        this.veterinaryTreatmentCost = veterinaryTreatmentCost;
+        this.surgeryRequired = surgeryRequired;
+    }
+
+    public String getInjuryDescription() {
+        return injuryDescription;
+    }
+
+    public double getVeterinaryTreatmentCost() {
+        return veterinaryTreatmentCost;
+    }
+
+    public boolean isSurgeryRequired() {
+        return surgeryRequired;
+    }
+
+    @Override
+    public String getRescueType() {
+        return "Injured Animal Rescue";
+    }
+
+    @Override
+    public double calculateTotalRescueCost() {
+
+        double total = calculateBaseCareCost()
+                + veterinaryTreatmentCost;
+
+        if (surgeryRequired) {
+            total += 5000.00;
+        }
+
+        return total;
+    }
+
+    @Override
+    public String determineRescuePriority() {
+
+        if (surgeryRequired) {
+            return "Critical";
+        }
+
+        if (veterinaryTreatmentCost >= 3000) {
+            return "High";
+        }
+
+        return "Medium";
+    }
+
+    @Override
+    protected String getTypeSpecificInformation() {
+
+        return String.format(
+                "Injury Description: %s%n"
+                + "Veterinary Cost   : R%,.2f%n"
+                + "Surgery Required  : %s",
+
+                injuryDescription,
+                veterinaryTreatmentCost,
+                surgeryRequired ? "Yes" : "No"
         );
     }
 }
