@@ -1,60 +1,149 @@
-package com.mycompany.assignment_1;
+package com.mycompany.chat_app;
 
-public class Main {
+/**
+ * Abstract base class containing information common to all rescue cases.
+ */
+public abstract class RescueCase implements RescueOperations {
 
-    public static void main(String[] args) {
+    private final String rescueCaseId;
+    private final String animalName;
+    private final String species;
+    private final String rescueLocation;
+    private final String assignedRanger;
+    private final int numberOfRescueDays;
+    private final double dailyCareCost;
+    private String currentRescueStatus;
 
-        String[] manufacturers = {
-            "CANON",
-            "SONY",
-            "NIKON"
-        };
+    protected RescueCase(
+            String rescueCaseId,
+            String animalName,
+            String species,
+            String rescueLocation,
+            String assignedRanger,
+            int numberOfRescueDays,
+            double dailyCareCost) {
 
-        int[][] prices = {
-            {10500, 8500},
-            {9500, 7200},
-            {12000, 8000}
-        };
+        this.rescueCaseId = rescueCaseId;
+        this.animalName = animalName;
+        this.species = species;
+        this.rescueLocation = rescueLocation;
+        this.assignedRanger = assignedRanger;
+        this.numberOfRescueDays = numberOfRescueDays;
+        this.dailyCareCost = dailyCareCost;
 
-        int greatestDifference = 0;
-        String greatestManufacturer = "";
+        this.currentRescueStatus = "Registered";
+    }
 
-        System.out.println("==============================================");
-        System.out.println("        CAMERA PRICE COMPARISON");
-        System.out.println("==============================================");
-        System.out.printf("%-15s %-15s %-15s %-15s%n",
-                "Manufacturer", "Mirrorless", "DSLR", "Difference");
-        System.out.println("--------------------------------------------------------------");
+    public String getRescueCaseId() {
+        return rescueCaseId;
+    }
 
-        for (int i = 0; i < manufacturers.length; i++) {
+    public String getAnimalName() {
+        return animalName;
+    }
 
-            int mirrorlessPrice = prices[i][0];
-            int dslrPrice = prices[i][1];
+    public String getSpecies() {
+        return species;
+    }
 
-            int difference = mirrorlessPrice - dslrPrice;
+    public String getRescueLocation() {
+        return rescueLocation;
+    }
 
-            String stars = "";
+    public String getAssignedRanger() {
+        return assignedRanger;
+    }
 
-            if (difference >= 2500) {
-                stars = "***";
-            }
+    public int getNumberOfRescueDays() {
+        return numberOfRescueDays;
+    }
 
-            System.out.printf("%-15s R%-14d R%-14d R%d %s%n",
-                    manufacturers[i],
-                    mirrorlessPrice,
-                    dslrPrice,
-                    difference,
-                    stars);
+    public double getDailyCareCost() {
+        return dailyCareCost;
+    }
 
-            if (difference > greatestDifference) {
-                greatestDifference = difference;
-                greatestManufacturer = manufacturers[i];
-            }
-        }
+    public String getCurrentRescueStatus() {
+        return currentRescueStatus;
+    }
 
-        System.out.println("--------------------------------------------------------------");
-        System.out.println("Manufacturer with the greatest price difference: "
-                + greatestManufacturer);
-        System.out.println("Greatest price difference: R" + greatestDifference);
+    protected void setCurrentRescueStatus(String status) {
+        this.currentRescueStatus = status;
+    }
+
+    /**
+     * Calculates the common daily-care portion of the rescue cost.
+     */
+    protected double calculateBaseCareCost() {
+        return numberOfRescueDays * dailyCareCost;
+    }
+
+    public abstract String getRescueType();
+
+    public abstract double calculateTotalRescueCost();
+
+    public abstract String determineRescuePriority();
+
+    /**
+     * Returns information specific to each rescue type.
+     */
+    protected abstract String getTypeSpecificInformation();
+
+    @Override
+    public void startRescue() {
+        setCurrentRescueStatus("Rescue In Progress");
+    }
+
+    @Override
+    public void completeRescue() {
+        setCurrentRescueStatus("Rescue Completed");
+    }
+
+    @Override
+    public String generateRescueSummary() {
+
+        return String.format(
+                "Case ID: %s%n"
+                + "Rescue Type: %s%n"
+                + "Species: %s%n"
+                + "Assigned Ranger: %s%n"
+                + "Rescue Priority: %s%n"
+                + "Current Status: %s%n"
+                + "Total Rescue Cost: R%,.2f",
+
+                rescueCaseId,
+                getRescueType(),
+                species,
+                assignedRanger,
+                determineRescuePriority(),
+                currentRescueStatus,
+                calculateTotalRescueCost()
+        );
+    }
+
+    public String getFullReportEntry() {
+
+        return String.format(
+                "Case ID       : %s%n"
+                + "Animal Name   : %s%n"
+                + "Type          : %s%n"
+                + "Species       : %s%n"
+                + "Location      : %s%n"
+                + "Ranger        : %s%n"
+                + "Priority      : %s%n"
+                + "Status        : %s%n"
+                + "Total Cost    : R%,.2f%n"
+                + "%s",
+
+                rescueCaseId,
+                animalName,
+                getRescueType(),
+                species,
+                rescueLocation,
+                assignedRanger,
+                determineRescuePriority(),
+                currentRescueStatus,
+                calculateTotalRescueCost(),
+                getTypeSpecificInformation()
+        );
     }
 }
