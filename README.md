@@ -1,15 +1,15 @@
 package com.mycompany.chat_app;
 
 /**
- * Rescue case for an injured animal.
+ * Rescue case for an orphaned animal.
  */
-public class InjuredAnimalRescue extends RescueCase {
+public class OrphanedAnimalRescue extends RescueCase {
 
-    private final String injuryDescription;
-    private final double veterinaryTreatmentCost;
-    private final boolean surgeryRequired;
+    private final int estimatedAgeMonths;
+    private final double feedingCost;
+    private final boolean fosterCareRequired;
 
-    public InjuredAnimalRescue(
+    public OrphanedAnimalRescue(
             String rescueCaseId,
             String animalName,
             String species,
@@ -17,9 +17,9 @@ public class InjuredAnimalRescue extends RescueCase {
             String assignedRanger,
             int numberOfRescueDays,
             double dailyCareCost,
-            String injuryDescription,
-            double veterinaryTreatmentCost,
-            boolean surgeryRequired) {
+            int estimatedAgeMonths,
+            double feedingCost,
+            boolean fosterCareRequired) {
 
         super(
                 rescueCaseId,
@@ -31,36 +31,36 @@ public class InjuredAnimalRescue extends RescueCase {
                 dailyCareCost
         );
 
-        this.injuryDescription = injuryDescription;
-        this.veterinaryTreatmentCost = veterinaryTreatmentCost;
-        this.surgeryRequired = surgeryRequired;
+        this.estimatedAgeMonths = estimatedAgeMonths;
+        this.feedingCost = feedingCost;
+        this.fosterCareRequired = fosterCareRequired;
     }
 
-    public String getInjuryDescription() {
-        return injuryDescription;
+    public int getEstimatedAgeMonths() {
+        return estimatedAgeMonths;
     }
 
-    public double getVeterinaryTreatmentCost() {
-        return veterinaryTreatmentCost;
+    public double getFeedingCost() {
+        return feedingCost;
     }
 
-    public boolean isSurgeryRequired() {
-        return surgeryRequired;
+    public boolean isFosterCareRequired() {
+        return fosterCareRequired;
     }
 
     @Override
     public String getRescueType() {
-        return "Injured Animal Rescue";
+        return "Orphaned Animal Rescue";
     }
 
     @Override
     public double calculateTotalRescueCost() {
 
         double total = calculateBaseCareCost()
-                + veterinaryTreatmentCost;
+                + feedingCost;
 
-        if (surgeryRequired) {
-            total += 5000.00;
+        if (fosterCareRequired) {
+            total += 2500.00;
         }
 
         return total;
@@ -69,28 +69,28 @@ public class InjuredAnimalRescue extends RescueCase {
     @Override
     public String determineRescuePriority() {
 
-        if (surgeryRequired) {
-            return "Critical";
-        }
-
-        if (veterinaryTreatmentCost >= 3000) {
+        if (estimatedAgeMonths <= 3 || fosterCareRequired) {
             return "High";
         }
 
-        return "Medium";
+        if (estimatedAgeMonths <= 12) {
+            return "Medium";
+        }
+
+        return "Low";
     }
 
     @Override
     protected String getTypeSpecificInformation() {
 
         return String.format(
-                "Injury Description: %s%n"
-                + "Veterinary Cost   : R%,.2f%n"
-                + "Surgery Required  : %s",
+                "Estimated Age     : %d months%n"
+                + "Feeding Cost      : R%,.2f%n"
+                + "Foster Care       : %s",
 
-                injuryDescription,
-                veterinaryTreatmentCost,
-                surgeryRequired ? "Yes" : "No"
+                estimatedAgeMonths,
+                feedingCost,
+                fosterCareRequired ? "Yes" : "No"
         );
     }
 }
