@@ -1,365 +1,116 @@
-package com.mycompany.chat_app;
 
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
+import java.util.Scanner;
 
-/**
- * JUnit tests required by the assignment.
- */
-public class WildlifeRescueTests {
+// Error Message Class
+class OrderMessages {
 
-    @Test
-    public void injuredRescueCostWithoutSurgeryIsCorrect() {
+    public static final String[] MESSAGES = {
+        "Item number must be numeric.",
+        "Item number is too low. It cannot be less than 0.",
+        "Item number is too high. It cannot be greater than 9999.",
+        "Quantity must be numeric.",
+        "Quantity is too low. It must be at least 1.",
+        "Quantity is too high. It cannot be greater than 12.",
+        "The item number does not correspond to a valid item."
+    };
+}
 
-        InjuredAnimalRescue rescue =
-                new InjuredAnimalRescue(
-                        "WR101",
-                        "Kito",
-                        "African Elephant",
-                        "Pretoria",
-                        "Ranger A",
-                        5,
-                        500,
-                        "Broken leg",
-                        2000,
-                        false
-                );
+// Custom Exception Class
+class OrderException extends Exception {
 
-        // Base care = 5 x R500 = R2500
-        // Total = R2500 + R2000 = R4500
-
-        assertEquals(
-                4500.00,
-                rescue.calculateTotalRescueCost(),
-                0.001
-        );
+    public OrderException(String message) {
+        super(message);
     }
+}
 
-    @Test
-    public void injuredRescueCostWithSurgeryIncludesR5000() {
+// Main Application Class
+public class Main {
 
-        InjuredAnimalRescue rescue =
-                new InjuredAnimalRescue(
-                        "WR102",
-                        "Temba",
-                        "Lion",
-                        "Bela-Bela",
-                        "Ranger B",
-                        4,
-                        600,
-                        "Severe injury",
-                        3000,
-                        true
-                );
+    public static void main(String[] args) {
 
-        // Base care = R2400
-        // Veterinary = R3000
-        // Surgery = R5000
-        // Total = R10400
+        Scanner input = new Scanner(System.in);
 
-        assertEquals(
-                10400.00,
-                rescue.calculateTotalRescueCost(),
-                0.001
-        );
-    }
+        // Inventory
+        int[] itemNumbers = {111, 222, 333, 444};
+        double[] itemPrices = {0.89, 1.47, 2.43, 5.99};
 
-    @Test
-    public void orphanedRescueCostWithFosterCareIsCorrect() {
+        try {
+            // Enter item number
+            System.out.print("Enter item number: ");
+            String itemInput = input.nextLine();
 
-        OrphanedAnimalRescue rescue =
-                new OrphanedAnimalRescue(
-                        "WR103",
-                        "Nala",
-                        "Leopard",
-                        "Modimolle",
-                        "Ranger C",
-                        6,
-                        400,
-                        2,
-                        1500,
-                        true
-                );
+            int itemNumber;
 
-        // Base care = R2400
-        // Feeding = R1500
-        // Foster = R2500
-        // Total = R6400
+            try {
+                itemNumber = Integer.parseInt(itemInput);
+            } catch (NumberFormatException e) {
+                throw new OrderException(OrderMessages.MESSAGES[0]);
+            }
 
-        assertEquals(
-                6400.00,
-                rescue.calculateTotalRescueCost(),
-                0.001
-        );
-    }
+            // Validate item number
+            if (itemNumber < 0) {
+                throw new OrderException(OrderMessages.MESSAGES[1]);
+            }
 
-    @Test
-    public void endangeredRescueCostWithSpecialistTeamIsCorrect() {
+            if (itemNumber > 9999) {
+                throw new OrderException(OrderMessages.MESSAGES[2]);
+            }
 
-        EndangeredSpeciesRescue rescue =
-                new EndangeredSpeciesRescue(
-                        "WR104",
-                        "Maya",
-                        "Black Rhino",
-                        "Kruger",
-                        "Ranger D",
-                        3,
-                        700,
-                        "Critically Endangered",
-                        2000,
-                        true
-                );
+            // Enter quantity
+            System.out.print("Enter quantity: ");
+            String quantityInput = input.nextLine();
 
-        // Base care = R2100
-        // Security = R2000
-        // Specialist = R8000
-        // Total = R12100
+            int quantity;
 
-        assertEquals(
-                12100.00,
-                rescue.calculateTotalRescueCost(),
-                0.001
-        );
-    }
+            try {
+                quantity = Integer.parseInt(quantityInput);
+            } catch (NumberFormatException e) {
+                throw new OrderException(OrderMessages.MESSAGES[3]);
+            }
 
-    @Test
-    public void rescuePriorityIsCalculatedCorrectly() {
+            // Validate quantity
+            if (quantity < 1) {
+                throw new OrderException(OrderMessages.MESSAGES[4]);
+            }
 
-        InjuredAnimalRescue critical =
-                new InjuredAnimalRescue(
-                        "WR105",
-                        "Max",
-                        "Elephant",
-                        "Pretoria",
-                        "Ranger A",
-                        2,
-                        500,
-                        "Emergency injury",
-                        1000,
-                        true
-                );
+            if (quantity > 12) {
+                throw new OrderException(OrderMessages.MESSAGES[5]);
+            }
 
-        OrphanedAnimalRescue high =
-                new OrphanedAnimalRescue(
-                        "WR106",
-                        "Leo",
-                        "Lion",
-                        "Bela-Bela",
-                        "Ranger B",
-                        2,
-                        500,
-                        1,
-                        500,
-                        false
-                );
+            // Search for the item
+            int itemIndex = -1;
 
-        EndangeredSpeciesRescue endangered =
-                new EndangeredSpeciesRescue(
-                        "WR107",
-                        "Zuri",
-                        "Rhino",
-                        "Kruger",
-                        "Ranger C",
-                        2,
-                        500,
-                        "Endangered",
-                        500,
-                        false
-                );
+            for (int i = 0; i < itemNumbers.length; i++) {
+                if (itemNumbers[i] == itemNumber) {
+                    itemIndex = i;
+                    break;
+                }
+            }
 
-        assertEquals(
-                "Critical",
-                critical.determineRescuePriority()
-        );
+            // Check if the item exists
+            if (itemIndex == -1) {
+                throw new OrderException(OrderMessages.MESSAGES[6]);
+            }
 
-        assertEquals(
-                "High",
-                high.determineRescuePriority()
-        );
+            // Calculate total amount
+            double total = itemPrices[itemIndex] * quantity;
 
-        assertEquals(
-                "High",
-                endangered.determineRescuePriority()
-        );
-    }
+            // Display order details
+            System.out.println("\nOrder successful!");
+            System.out.println("Item number: " + itemNumber);
+            System.out.println("Quantity: " + quantity);
 
-    @Test
-    public void startAndCompleteRescueUpdateStatus() {
+            System.out.printf("Price per item: $%.2f%n",
+                    itemPrices[itemIndex]);
 
-        RescueCase rescue =
-                new InjuredAnimalRescue(
-                        "WR108",
-                        "Simba",
-                        "Lion",
-                        "Polokwane",
-                        "Ranger D",
-                        2,
-                        300,
-                        "Minor injury",
-                        500,
-                        false
-                );
+            System.out.printf("Total amount due: $%.2f%n",
+                    total);
 
-        assertEquals(
-                "Registered",
-                rescue.getCurrentRescueStatus()
-        );
+        } catch (OrderException e) {
+            System.out.println("Error: " + e.getMessage());
 
-        rescue.startRescue();
-
-        assertEquals(
-                "Rescue In Progress",
-                rescue.getCurrentRescueStatus()
-        );
-
-        rescue.completeRescue();
-
-        assertEquals(
-                "Rescue Completed",
-                rescue.getCurrentRescueStatus()
-        );
-    }
-
-    @Test
-    public void searchFindsExistingRescueCase() {
-
-        RescueCaseManager manager =
-                new RescueCaseManager();
-
-        RescueCase rescue =
-                new OrphanedAnimalRescue(
-                        "WR109",
-                        "Luna",
-                        "Zebra",
-                        "Pretoria",
-                        "Ranger E",
-                        3,
-                        250,
-                        4,
-                        400,
-                        false
-                );
-
-        assertTrue(
-                manager.addRescueCase(rescue)
-        );
-
-        assertNotNull(
-                manager.findRescueCase("WR109")
-        );
-
-        assertEquals(
-                "Luna",
-                manager.findRescueCase("WR109")
-                        .getAnimalName()
-        );
-    }
-
-    @Test
-    public void duplicateRescueCaseIdsArePrevented() {
-
-        RescueCaseManager manager =
-                new RescueCaseManager();
-
-        RescueCase first =
-                new InjuredAnimalRescue(
-                        "WR110",
-                        "A",
-                        "Lion",
-                        "Pretoria",
-                        "Ranger A",
-                        1,
-                        100,
-                        "Cut",
-                        100,
-                        false
-                );
-
-        RescueCase second =
-                new OrphanedAnimalRescue(
-                        "WR110",
-                        "B",
-                        "Elephant",
-                        "Pretoria",
-                        "Ranger B",
-                        1,
-                        100,
-                        2,
-                        100,
-                        false
-                );
-
-        assertTrue(
-                manager.addRescueCase(first)
-        );
-
-        assertFalse(
-                manager.addRescueCase(second)
-        );
-
-        assertEquals(
-                1,
-                manager.getNumberOfRescueCases()
-        );
-    }
-
-    @Test
-    public void reportContainsRequiredInformation() {
-
-        RescueCaseManager manager =
-                new RescueCaseManager();
-
-        RescueCase rescue =
-                new EndangeredSpeciesRescue(
-                        "WR111",
-                        "Thabo",
-                        "Black Rhino",
-                        "Kruger",
-                        "Ranger F",
-                        2,
-                        500,
-                        "Critically Endangered",
-                        1000,
-                        true
-                );
-
-        manager.addRescueCase(rescue);
-
-        String report =
-                manager.generateReport();
-
-        assertTrue(
-                report.contains("WR111")
-        );
-
-        assertTrue(
-                report.contains(
-                        "Endangered Species Rescue"
-                )
-        );
-
-        assertTrue(
-                report.contains(
-                        "Black Rhino"
-                )
-        );
-
-        assertTrue(
-                report.contains(
-                        "Ranger F"
-                )
-        );
-
-        assertTrue(
-                report.contains(
-                        "Critical"
-                )
-        );
-
-        assertTrue(
-                report.contains(
-                        "Total Rescue Cases : 1"
-                )
-        );
+        } finally {
+            input.close();
+        }
     }
 }
