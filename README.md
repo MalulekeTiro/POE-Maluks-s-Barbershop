@@ -1,16 +1,34 @@
 
-223355
-123456
-456789
-111113
-222226
-345678
-123450
-987654
-654321
-555555
-234561
-123455
-444448
-765432
-111111
+class Animal {
+
+    String name;
+
+    void eat() {
+        System.out.println(name + " is eating.");
+    }
+}
+
+class Dog extends Animal {
+
+    void bark() {
+        System.out.println(name + " is barking.");
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Create a Dog object
+        Dog myDog = new Dog();
+
+        // Assign a name to the dog
+        myDog.name = "Buddy";
+
+        // Call the inherited eat() method
+        myDog.eat();
+
+        // Call the Dog class bark() method
+        myDog.bark();
+    }
+}
