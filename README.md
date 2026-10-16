@@ -1,116 +1,87 @@
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
-// Error Message Class
-class OrderMessages {
-
-    public static final String[] MESSAGES = {
-        "Item number must be numeric.",
-        "Item number is too low. It cannot be less than 0.",
-        "Item number is too high. It cannot be greater than 9999.",
-        "Quantity must be numeric.",
-        "Quantity is too low. It must be at least 1.",
-        "Quantity is too high. It cannot be greater than 12.",
-        "The item number does not correspond to a valid item."
-    };
-}
-
-// Custom Exception Class
-class OrderException extends Exception {
-
-    public OrderException(String message) {
-        super(message);
-    }
-}
-
-// Main Application Class
 public class Main {
 
     public static void main(String[] args) {
 
-        Scanner input = new Scanner(System.in);
+        // Input and output files
+        File inputFile = new File("input.txt");
+        File outputFile = new File("output.txt");
 
-        // Inventory
-        int[] itemNumbers = {111, 222, 333, 444};
-        double[] itemPrices = {0.89, 1.47, 2.43, 5.99};
+        try (
+            Scanner fileReader = new Scanner(inputFile);
+            PrintWriter fileWriter = new PrintWriter(outputFile)
+        ) {
 
-        try {
-            // Enter item number
-            System.out.print("Enter item number: ");
-            String itemInput = input.nextLine();
+            System.out.println("ACCOUNT NUMBER VALIDATION");
+            System.out.println("--------------------------");
 
-            int itemNumber;
+            while (fileReader.hasNextLine()) {
 
-            try {
-                itemNumber = Integer.parseInt(itemInput);
-            } catch (NumberFormatException e) {
-                throw new OrderException(OrderMessages.MESSAGES[0]);
-            }
+                String accountNumber = fileReader.nextLine().trim();
 
-            // Validate item number
-            if (itemNumber < 0) {
-                throw new OrderException(OrderMessages.MESSAGES[1]);
-            }
+                // Skip empty lines
+                if (accountNumber.isEmpty()) {
+                    continue;
+                }
 
-            if (itemNumber > 9999) {
-                throw new OrderException(OrderMessages.MESSAGES[2]);
-            }
+                // Check that the account number has exactly six digits
+                if (!accountNumber.matches("\\d{6}")) {
+                    System.out.println(
+                        accountNumber + " - INVALID"
+                    );
+                    continue;
+                }
 
-            // Enter quantity
-            System.out.print("Enter quantity: ");
-            String quantityInput = input.nextLine();
+                // Calculate the sum of the first five digits
+                int sum = 0;
 
-            int quantity;
+                for (int i = 0; i < 5; i++) {
+                    sum += Character.getNumericValue(
+                        accountNumber.charAt(i)
+                    );
+                }
 
-            try {
-                quantity = Integer.parseInt(quantityInput);
-            } catch (NumberFormatException e) {
-                throw new OrderException(OrderMessages.MESSAGES[3]);
-            }
+                // Calculate the remainder
+                int remainder = sum % 10;
 
-            // Validate quantity
-            if (quantity < 1) {
-                throw new OrderException(OrderMessages.MESSAGES[4]);
-            }
+                // Get the last digit
+                int lastDigit = Character.getNumericValue(
+                    accountNumber.charAt(5)
+                );
 
-            if (quantity > 12) {
-                throw new OrderException(OrderMessages.MESSAGES[5]);
-            }
+                // Validate the account number
+                if (remainder == lastDigit) {
 
-            // Search for the item
-            int itemIndex = -1;
+                    System.out.println(
+                        accountNumber + " - VALID"
+                    );
 
-            for (int i = 0; i < itemNumbers.length; i++) {
-                if (itemNumbers[i] == itemNumber) {
-                    itemIndex = i;
-                    break;
+                    // Write only valid account numbers
+                    fileWriter.println(accountNumber);
+
+                } else {
+
+                    System.out.println(
+                        accountNumber + " - INVALID"
+                    );
                 }
             }
 
-            // Check if the item exists
-            if (itemIndex == -1) {
-                throw new OrderException(OrderMessages.MESSAGES[6]);
-            }
+            System.out.println("--------------------------");
+            System.out.println("Validation completed.");
+            System.out.println("Valid account numbers saved to output.txt");
 
-            // Calculate total amount
-            double total = itemPrices[itemIndex] * quantity;
+        } catch (FileNotFoundException e) {
 
-            // Display order details
-            System.out.println("\nOrder successful!");
-            System.out.println("Item number: " + itemNumber);
-            System.out.println("Quantity: " + quantity);
+            System.out.println(
+                "Error: input.txt could not be found."
+            );
 
-            System.out.printf("Price per item: $%.2f%n",
-                    itemPrices[itemIndex]);
-
-            System.out.printf("Total amount due: $%.2f%n",
-                    total);
-
-        } catch (OrderException e) {
-            System.out.println("Error: " + e.getMessage());
-
-        } finally {
-            input.close();
         }
     }
 }
